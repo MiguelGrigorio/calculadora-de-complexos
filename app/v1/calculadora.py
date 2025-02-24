@@ -1,5 +1,4 @@
-from typeNumbers import Graus, Radianos, Polar, Rect
-from operations import soma, subtracao, multiplicacao, divisao
+from typeNumbers import Graus, Radianos, Polar, Complexo
 import time
 import os
 
@@ -16,7 +15,7 @@ def inicio():
         inicio()
 
     print("Caso queira um número polar, digite P(r, theta)")
-    print("Caso queira um número retangular, digite R(x, y)")
+    print("Caso queira um número retangular, digite X + Yj")
     menu()
 
 ans = None
@@ -26,22 +25,35 @@ exp = ""
 
 def menu():
     global index, exp, ans
-    text = ["- Digite o primeiro número complexo: " if not ans else f"- Digite o primeiro número complexo ou ans ({ans.print(ang)}): ", "- Digite a operação: ", "- Digite o segundo número complexo: "]
+    text = [f"- Digite o primeiro número complexo{"" if not ans else f" ou ans ({ans.print(ang)})"}:" , "- Digite a operação: ", "- Digite o segundo número complexo: "]
     
     while index != len(text):
         if values:
             print(exp)
         value = input(text[index])
         if value == "ans":
+            if not ans:
+                print("Nenhum valor armazenado.")
+                time.sleep(1)
+                menu()
             values.append(ans)
             index += 1
             exp += ans.print(ang) + " "
-        elif value[0] in ["P", "R"] and index != 1:
-            v = value[2:-1].split(", ")
-            v = Polar(float(v[0]), Graus(float(v[1])) if ang == "G" else Radianos(float(v[1]))) if value[0] == "P" else Rect(float(v[0]), float(v[1]))
-            values.append(v)
-            index += 1
-            exp += v.print(ang) + " "
+        elif index != 1:
+            try:
+                if value[0] == "P":
+                    num = value[2:-1].split(",")
+                    num = Polar(float(num[0]), Graus(float(num[1])) if ang == "G" else Radianos(float(num[1])))
+                else:
+                    num = complex(value.replace(" ", "").replace("i", "j"))
+                v = Complexo(num)
+                values.append(v)
+                index += 1
+                exp += v.print(ang) + " "
+            except:
+                print("Entrada inválida.")
+                time.sleep(1)
+                menu()
         elif value in ["+", "-", "*", "/"] and index == 1:
             values.append(value)
             index += 1
@@ -55,18 +67,15 @@ def menu():
     V2 = values[2]
     match values[1]:
         case "+":
-            ans = soma(V1, V2)
+            ans = V1 + V2
         case "-":
-            ans = subtracao(V1, V2)
+            ans = V1 - V2
         case "*":
-            ans = multiplicacao(V1, V2)
+            ans = V1 * V2
         case "/":
-            ans = divisao(V1, V2)
+            ans = V1 / V2
     
-    if type(V1) == Rect:
-        ans = ans.toRect()
-    
-    print(values[0].print(ang), values[1], values[2].print(ang), "=", ans.print(ang))
+    print(f"{exp + "= " + ans.print(ang)}")
     index = 0
     exp = ""
     values.clear()

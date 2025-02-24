@@ -1,4 +1,4 @@
-from math import sqrt, cos, sin, atan2, pi
+from math import cos, sin, atan2, pi
 
 class Graus:
     def __init__(self, graus):
@@ -7,12 +7,14 @@ class Graus:
         if graus < 0:
             graus = 360 + graus
         self.ang = graus
+   
     def toRad(self):
         return Radianos(self.ang * pi / 180)
 
 class Radianos:
     def __init__(self, rad):
         self.ang = rad
+    
     def toGraus(self):
         return Graus(self.ang * 180 / pi)
 
@@ -24,17 +26,41 @@ class Polar:
         else:
             self.theta = theta
 
-    def toRect(self):
-        return Rect(self.r * cos(self.theta.ang), self.r * sin(self.theta.ang))
+    def __complex__(self):
+        return complex(self.r * cos(self.theta.ang), self.r * sin(self.theta.ang))
+
+class Complexo():
+    def __init__(self, num):
+        self.origin = "Rec" if type(num) == complex else "Pol"
+        if type(num) != complex:
+            num = complex(num)
+        self.num = num
     
-    def print(self, RG):
-        return f"{round(self.r, 2)} <{round(self.theta.ang, 2) if RG == "R" else round(self.theta.toGraus().ang, 2)}{"°" if RG == 'G' else "rad"}>"
-class Rect:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-    def toPolar(self):
-        return Polar(sqrt(self.x**2 + self.y**2), Radianos(atan2(self.y, self.x)))
-    def print(self, ang):
-        # Ângulo não é necessário, pois o número é retangular mas é utilizado para manter a consistência
-        return f"{round(self.x, 2)} + {round(self.y, 2)}j"
+    def print(self, RadDeg):
+        if self.origin == "Pol":
+            angle = Radianos(atan2(self.num.imag, self.num.real))
+            print(abs(self.num))
+            return f"{round(abs(self.num), 2)} <{round(angle.ang, 2) if RadDeg == 'R' else round(angle.toGraus().ang)}{'°' if RadDeg == 'G' else 'rad'}>"
+        else:
+            return f"{round(self.num.real, 2)} + {round(self.num.imag, 2)}j"
+            
+    def __add__(self, other):
+        self.num += other.num
+        return self
+
+    def __sub__(self, other):
+        self.num -= other.num
+        return self
+
+    def __mul__(self, other):
+        self.num *= other.num
+        return self
+    
+    def __truediv__(self, other): 
+        if other.num == 0:
+            raise ZeroDivisionError("Divisão por zero")
+        self.num /= other.num
+        return self
+
+    def __complex__(self):  
+        return self.num
