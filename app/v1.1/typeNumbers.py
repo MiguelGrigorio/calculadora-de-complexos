@@ -42,7 +42,12 @@ class Complexo():
             return f"{round(abs(self.num), 2)} ∠ {round(angle.ang, 2) if RadDeg == 'R' else round(angle.toGraus().ang)}{'°' if RadDeg == 'G' else 'rad'}"
         else:
             return f"{round(self.num.real, 2)} + {round(self.num.imag, 2)}j"
-            
+    def sympy(self):
+        if self.origin == "Pol":
+            angle = Radianos(atan2(self.num.imag, self.num.real))
+            return f"{round(abs(self.num), 2)}*exp({round(angle.ang, 2)}*I)"
+        else:
+            return f"{round(self.num.real, 2)} + {round(self.num.imag, 2)}*I"
     def __add__(self, other):
         self.num += other.num
         return self
